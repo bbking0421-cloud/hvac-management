@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVAC 장비 관리 시스템</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-wind"></i>
+                <h1>HVAC 장비 관리</h1>
+            </div>
+            <p class="subtitle">공조설비 점검 및 관리 시스템</p>
+        </div>
+
+        <div class="main-menu">
+            <div class="menu-card" onclick="location.href='inspection.html'">
+                <div class="card-icon inspector">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h2>장비 점검</h2>
+                <p>현장 장비 점검 및 데이터 입력</p>
+                <div class="card-badge">점검자</div>
+            </div>
+
+            <div class="menu-card" onclick="location.href='dashboard.html'">
+                <div class="card-icon manager">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h2>관리 대시보드</h2>
+                <p>통계, 차트 및 점검 내역 조회</p>
+                <div class="card-badge">관리자</div>
+            </div>
+        </div>
+
+        <div class="quick-access">
+            <h3><i class="fas fa-bolt"></i> 빠른 접근</h3>
+            <div class="quick-buttons">
+                <button onclick="openQRScanner()" class="btn-qr">
+                    <i class="fas fa-qrcode"></i> QR 스캔
+                </button>
+                <button onclick="location.href='equipment-list.html'" class="btn-list">
+                    <i class="fas fa-list"></i> 장비 목록
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-preview">
+            <div class="stat-item">
+                <i class="fas fa-building"></i>
+                <div>
+                    <strong id="totalSites">-</strong>
+                    <span>현장</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-cogs"></i>
+                <div>
+                    <strong id="totalEquipment">-</strong>
+                    <span>장비</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong id="todayInspections">-</strong>
+                    <span>금일 점검</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 HVAC Equipment Management System</p>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
