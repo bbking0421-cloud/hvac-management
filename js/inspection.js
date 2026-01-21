@@ -1,3 +1,6 @@
+// Google Apps Script API URL
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
+
 // 전역 변수
 let currentStep = 1;
 let selectedSite = null;
@@ -16,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Step 1: 현장 목록 로드
 async function loadSites() {
     try {
-        const response = await fetch(`${API_BASE}/sites?limit=1000`);
+        const response = await fetch(`${API_BASE}?action=list&table=sites`);
         const data = await response.json();
         
         const siteList = document.getElementById('siteList');
@@ -47,7 +50,7 @@ async function selectSite(site) {
     document.getElementById('selectedSiteName').textContent = site.site_name;
     
     try {
-        const response = await fetch(`${API_BASE}/buildings?limit=1000`);
+        const response = await fetch(`${API_BASE}?action=list&table=buildings`);
         const data = await response.json();
         
         // 선택된 현장의 건물만 필터링
@@ -86,7 +89,7 @@ async function selectBuilding(building) {
     document.getElementById('selectedBuildingName').textContent = building.building_name;
     
     try {
-        const response = await fetch(`${API_BASE}/equipment?limit=1000`);
+        const response = await fetch(`${API_BASE}?action=list&table=equipment`);
         const data = await response.json();
         
         // 선택된 건물의 장비만 필터링
@@ -277,7 +280,7 @@ async function submitInspection(e) {
     }
     
     try {
-        const response = await fetch(`${API_BASE}/inspections`, {
+        const response = await fetch(`${API_BASE}?action=create&table=inspections`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
