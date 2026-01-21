@@ -349,3 +349,128 @@ function changeStep(step) {
     // 스크롤 최상단으로
     window.scrollTo(0, 0);
 }
+
+// ===== 사진 첨부 기능 =====
+let selectedPhotos = [];
+
+// 사진 선택 이벤트
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', handlePhotoSelect);
+    }
+});
+
+// 사진 선택 처리
+function handlePhotoSelect(event) {
+    const files = Array.from(event.target.files);
+    
+    files.forEach(file => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedPhotos.push({
+                    file: file,
+                    dataUrl: e.target.result,
+                    name: file.name
+                });
+                updatePhotoPreview();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // 입력 필드 초기화 (같은 파일 다시 선택 가능하게)
+    event.target.value = '';
+}
+
+// 사진 미리보기 업데이트
+function updatePhotoPreview() {
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    
+    selectedPhotos.forEach((photo, index) => {
+        const photoItem = document.createElement('div');
+        photoItem.className = 'photo-item';
+        photoItem.innerHTML = `
+            <img src="${photo.dataUrl}" alt="사진 ${index + 1}">
+            <button class="remove-photo" onclick="removePhoto(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        preview.appendChild(photoItem);
+    });
+}
+
+// 사진 삭제
+function removePhoto(index) {
+    selectedPhotos.splice(index, 1);
+    updatePhotoPreview();
+}
+
+// 사진 업로드 (Google Drive)
+async function uploadPhotos() {
+    if (selectedPhotos.length === 0) {
+        return [];
+    }
+    
+    showUploadingOverlay();
+    const uploadedUrls = [];
+    
+    try {
+        for (let i = 0; i < selectedPhotos.length; i++) {
+            const photo = selectedPhotos[i];
+            const timestamp = new Date().getTime();
+            const fileName = `inspection_${timestamp}_${i}.jpg`;
+            
+            // Google Apps Script로 업로드
+            const response = await fetch(API_BASE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'uploadImage',
+                    base64Data: photo.dataUrl,
+                    fileName: fileName
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                uploadedUrls.push(result.thumbnailUrl);
+            } else {
+                console.error('사진 업로드 실패:', result.error);
+            }
+        }
+    } catch (error) {
+        console.error('사진 업로드 오류:', error);
+    } finally {
+        hideUploadingOverlay();
+    }
+    
+    return uploadedUrls;
+}
+
+// 업로드 중 오버레이 표시
+function showUploadingOverlay() {
+    const overlay = document.createElement('div');
+    overlay.id = 'uploadingOverlay';
+    overlay.className = 'uploading-overlay';
+    overlay.innerHTML = `
+        <div class="uploading-content">
+            <i class="fas fa-spinner"></i>
+            <p>사진 업로드 중...</p>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+// 업로드 중 오버레이 숨기기
+function hideUploadingOverlay() {
+    const overlay = document.getElementById('uploadingOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
