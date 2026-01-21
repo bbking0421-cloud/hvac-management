@@ -4,7 +4,6 @@ let selectedSite = null;
 let selectedBuilding = null;
 let selectedEquipment = null;
 let allEquipment = [];
-let selectedPhotos = [];
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -14,12 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('inspectionFormData');
     if (form) {
         form.addEventListener('submit', submitInspection);
-    }
-    
-    // 사진 입력 이벤트
-    const photoInput = document.getElementById('photoInput');
-    if (photoInput) {
-        photoInput.addEventListener('change', handlePhotoSelect);
     }
 });
 
@@ -177,7 +170,6 @@ function displayEquipment(equipment) {
     });
 }
 
-// Step 4: 점검 폼 표시
 function selectEquipment(equipment) {
     selectedEquipment = equipment;
     
@@ -243,7 +235,6 @@ function updateFormFields() {
     }
 }
 
-// 점검 데이터 제출
 async function submitInspection(e) {
     e.preventDefault();
     
@@ -256,12 +247,6 @@ async function submitInspection(e) {
         return;
     }
     
-    // 사진 알림
-    if (selectedPhotos.length > 0) {
-        alert('사진 업로드 기능은 현재 개발 중입니다.\n사진 없이 점검 데이터만 저장됩니다.');
-    }
-    
-    // 점검 데이터 구성
     const inspectionData = {
         equipment_id: selectedEquipment.id,
         inspection_type: inspectionType,
@@ -284,7 +269,6 @@ async function submitInspection(e) {
     }
     
     try {
-        // GET 방식으로 전송
         const params = new URLSearchParams();
         params.append('action', 'create');
         params.append('table', 'inspections');
@@ -293,10 +277,6 @@ async function submitInspection(e) {
             params.append(key, inspectionData[key]);
         });
         
-        // Google Apps Script로 전송
-        const url = `${API_BASE}?${params.toString()}`;
-        
-        // 숨겨진 iframe으로 전송
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.name = 'hidden_iframe';
@@ -306,12 +286,11 @@ async function submitInspection(e) {
             setTimeout(() => {
                 document.body.removeChild(iframe);
                 alert('점검이 성공적으로 저장되었습니다!');
-                selectedPhotos = [];
                 location.href = 'index.html';
             }, 1000);
         };
         
-        iframe.src = url;
+        iframe.src = `${API_BASE}?${params.toString()}`;
         
     } catch (error) {
         console.error('점검 저장 오류:', error);
@@ -342,48 +321,4 @@ function changeStep(step) {
     }
     
     window.scrollTo(0, 0);
-}
-
-// 사진 선택 처리
-function handlePhotoSelect(event) {
-    const files = Array.from(event.target.files);
-    
-    files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedPhotos.push({
-                    file: file,
-                    dataUrl: e.target.result,
-                    name: file.name
-                });
-                updatePhotoPreview();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    event.target.value = '';
-}
-
-function updatePhotoPreview() {
-    const preview = document.getElementById('photoPreview');
-    preview.innerHTML = '';
-    
-    selectedPhotos.forEach((photo, index) => {
-        const photoItem = document.createElement('div');
-        photoItem.className = 'photo-item';
-        photoItem.innerHTML = `
-            <img src="${photo.dataUrl}" alt="사진 ${index + 1}">
-            <button class="remove-photo" onclick="removePhoto(${index})">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        preview.appendChild(photoItem);
-    });
-}
-
-function removePhoto(index) {
-    selectedPhotos.splice(index, 1);
-    updatePhotoPreview();
 }
