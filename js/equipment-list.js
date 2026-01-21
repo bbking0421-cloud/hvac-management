@@ -1,3 +1,6 @@
+// Google Apps Script API URL
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
+
 // 전역 변수
 let allEquipmentList = [];
 let allSitesList = [];
@@ -12,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadFilters() {
     try {
         // 현장 목록
-        const sitesResponse = await fetch(`${API_BASE}/sites?limit=1000`);
+        const sitesResponse = await fetch(`${API_BASE}?action=list&table=sites`);
         const sitesData = await sitesResponse.json();
         allSitesList = sitesData.data;
         
@@ -22,7 +25,7 @@ async function loadFilters() {
         });
         
         // 장비 데이터 로드 후 장비 종류 필터 생성
-        const equipmentResponse = await fetch(`${API_BASE}/equipment?limit=1000`);
+        const equipmentResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
         const equipmentData = await equipmentResponse.json();
         allEquipmentList = equipmentData.data;
         
@@ -40,7 +43,7 @@ async function loadFilters() {
 // 장비 목록 로드
 async function loadEquipmentList() {
     try {
-        const equipmentResponse = await fetch(`${API_BASE}/equipment?limit=1000`);
+        const equipmentResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
         const equipmentData = await equipmentResponse.json();
         allEquipmentList = equipmentData.data;
         
