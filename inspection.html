@@ -147,71 +147,75 @@
                     <div class="form-group">
                         <label><i class="fas fa-power-off"></i> 운전상태</label>
                         <select id="operationStatus">
-                            <option value="정상">정상</option>
-                            <option value="이상">이상</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-tint"></i> 누수확인</label>
-                        <select id="leakCheck">
-                            <option value="없음">없음</option>
-                            <option value="있음">있음</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 세부점검 추가 필드 -->
-                <div id="detailedFields" class="form-section" style="display: none;">
-                    <h3>세부 점검 항목</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-wave-square"></i> 진동(mm/s)</label>
-                            <input type="number" step="0.1" id="vibration" placeholder="예: 2.5">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-volume-up"></i> 소음(dB)</label>
-                            <input type="number" step="0.1" id="noise" placeholder="예: 65">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-broom"></i> 청결상태</label>
-                        <select id="cleanStatus">
-                            <option value="양호">양호</option>
-                            <option value="보통">보통</option>
-                            <option value="불량">불량</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-filter"></i> 필터상태</label>
-                        <select id="filterStatus">
-                            <option value="양호">양호</option>
-                            <option value="교체필요">교체필요</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
+   	                            <option value="정상">정상</option>
+   	                            <option value="이상">이상</option>
+   	                        </select>
+   	                    </div>
+   	
+   	                    <div class="form-group">
+   	                        <label><i class="fas fa-tint"></i> 누수확인</label>
+   	                        <select id="leakCheck">
+   	                            <option value="없음">없음</option>
+   	                            <option value="있음">있음</option>
+   	                        </select>
+   	                    </div>
+   	                </div>
+   	
+   	            <!-- 세부점검 추가 필드 -->
+   	            <div id="detailedFields" class="form-section" style="display: none;">
+   	                <h3>세부 점검 항목</h3>
+   	                    
+   	                <div class="form-row">
+   	                     <div class="form-group">
+   	                        <label><i class="fas fa-wave-square"></i> 진동(mm/s)</label>
+   	                        <input type="number" step="0.1" id="vibration" placeholder="예: 2.5">
+   	                     </div>
+   	                    <div class="form-group">
+   	                        <label><i class="fas fa-volume-up"></i> 소음(dB)</label>
+   	                        <input type="number" step="0.1" id="noise" placeholder="예: 65">
+   	                    </div>
+   	                </div>
+   	
+   	                <div class="form-group">
+   	                    <label><i class="fas fa-broom"></i> 청결상태</label>
+   	                        <select id="cleanStatus">
+   	                            <option value="양호">양호</option>
+   	                            <option value="보통">보통</option>
+   	                            <option value="불량">불량</option>
+   	                        </select>
+   	                </div>
+   	
+   	                 <div class="form-group">
                     <label><i class="fas fa-comment"></i> 특이사항</label>
                     <textarea id="notes" rows="4" placeholder="특이사항이 있으면 입력하세요"></textarea>
                 </div>
 
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="changeStep(3)">
-                        <i class="fas fa-arrow-left"></i> 이전
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-check"></i> 점검 완료
-                    </button>
+                <!-- 사진 첨부 섹션 -->
+                <div class="form-group">
+                    <label><i class="fas fa-camera"></i> 사진 첨부 (선택)</label>
+                    <div class="photo-upload-area">
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display: none;">
+                        <button type="button" class="btn-photo" onclick="document.getElementById('photoInput').click()">
+                            <i class="fas fa-camera"></i> 사진 촬영/선택
+                        </button>
+                        <div id="photoPreview" class="photo-preview"></div>
+                    </div>
                 </div>
-            </form>
-        </div>
-    </div>
 
-    <script src="js/main.js"></script>
-    <script src="js/inspection.js"></script>
-</body>
-</html>
+                <div class="form-actions">
+   	                <button type="button" class="btn-secondary" onclick="changeStep(3)">
+   	                    <i class="fas fa-arrow-left"></i> 이전
+   	                </button>
+   	                <button type="submit" class="btn-primary">
+   	                    <i class="fas fa-check"></i> 점검 완료
+   	                </button>
+   	            </div>
+   	        </form>
+   	    </div>
+   	</div>
+   	
+   	    <script src="js/main.js"></script>
+   	    <script src="js/inspection.js"></script>
+   	</body>
+   	</html>
+   	
