@@ -3,7 +3,10 @@ const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHf
 
 // 페이지 로드 시 통계 데이터 가져오기
 document.addEventListener('DOMContentLoaded', async function() {
-    await loadStatistics();
+    // index.html 페이지인 경우에만 통계 로드
+    if (document.getElementById('totalSites')) {
+        await loadStatistics();
+    }
 });
 
 // 통계 데이터 로드
@@ -12,12 +15,18 @@ async function loadStatistics() {
         // 현장 수
         const sitesResponse = await fetch(`${API_BASE}?action=list&table=sites`);
         const sitesData = await sitesResponse.json();
-        document.getElementById('totalSites').textContent = sitesData.total || 0;
+        const sitesElement = document.getElementById('totalSites');
+        if (sitesElement) {
+            sitesElement.textContent = sitesData.total || 0;
+        }
 
         // 장비 수
         const equipmentResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
         const equipmentData = await equipmentResponse.json();
-        document.getElementById('totalEquipment').textContent = equipmentData.total || 0;
+        const equipmentElement = document.getElementById('totalEquipment');
+        if (equipmentElement) {
+            equipmentElement.textContent = equipmentData.total || 0;
+        }
 
         // 금일 점검 수
         const inspectionsResponse = await fetch(`${API_BASE}?action=list&table=inspections`);
@@ -29,7 +38,10 @@ async function loadStatistics() {
             return inspectionDate === today;
         }).length;
         
-        document.getElementById('todayInspections').textContent = todayCount;
+        const inspectionsElement = document.getElementById('todayInspections');
+        if (inspectionsElement) {
+            inspectionsElement.textContent = todayCount;
+        }
     } catch (error) {
         console.error('통계 데이터 로드 오류:', error);
     }
