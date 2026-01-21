@@ -79,5 +79,11 @@
     </div>
 
     <script src="js/main.js"></script>
+    <script>
+        // DOM이 완전히 로드된 후 실행
+        if (typeof loadStatistics === 'function') {
+            loadStatistics();
+        }
+    </script>
 </body>
 </html>
