@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 폼 제출 이벤트
     document.getElementById('inspectionFormData').addEventListener('submit', submitInspection);
+    
+    // 사진 입력 이벤트
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', handlePhotoSelect);
+    }
 });
 
 // Step 1: 현장 목록 로드
@@ -21,6 +27,11 @@ async function loadSites() {
         
         const siteList = document.getElementById('siteList');
         siteList.innerHTML = '';
+        
+        if (!data.data || data.data.length === 0) {
+            siteList.innerHTML = '<p style="text-align: center; color: #999;">등록된 현장이 없습니다.</p>';
+            return;
+        }
         
         data.data.forEach(site => {
             const card = document.createElement('div');
@@ -333,14 +344,6 @@ function changeStep(step) {
 
 // ===== 사진 첨부 기능 =====
 let selectedPhotos = [];
-
-// 사진 선택 이벤트
-document.addEventListener('DOMContentLoaded', function() {
-    const photoInput = document.getElementById('photoInput');
-    if (photoInput) {
-        photoInput.addEventListener('change', handlePhotoSelect);
-    }
-});
 
 // 사진 선택 처리
 function handlePhotoSelect(event) {
