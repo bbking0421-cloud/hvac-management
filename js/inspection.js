@@ -254,35 +254,34 @@ async function submitInspection(e) {
         return;
     }
     
-    // ID 생성
-    const inspectionId = 'INS' + new Date().getTime();
+    // 사진 업로드
+    const photoUrls = await uploadPhotos();
     
-    // Google Form 방식으로 제출
-    const params = new URLSearchParams();
-    params.append('action', 'create');
-    params.append('table', 'inspections');
-    params.append('id', inspectionId);
-    params.append('equipment_id', selectedEquipment.id);
-    params.append('inspection_type', inspectionType);
-    params.append('inspector_name', inspectorName);
-    params.append('inspection_date', new Date().toISOString());
-    params.append('status', status);
-    params.append('temperature', document.getElementById('temperature').value || '');
-    params.append('pressure', document.getElementById('pressure').value || '');
-    params.append('operation_status', document.getElementById('operationStatus').value);
-    params.append('leak_check', document.getElementById('leakCheck').value);
-    params.append('notes', document.getElementById('notes').value || '');
+    // 점검 데이터 구성
+    const inspectionData = {
+        equipment_id: selectedEquipment.id,
+        inspection_type: inspectionType,
+        inspector_name: inspectorName,
+        inspection_date: new Date().toISOString(),
+        status: status,
+        temperature: document.getElementById('temperature').value || '',
+        pressure: document.getElementById('pressure').value || '',
+        operation_status: document.getElementById('operationStatus').value,
+        leak_check: document.getElementById('leakCheck').value,
+        notes: document.getElementById('notes').value || '',
+        photo_url: photoUrls.join(',') // 쉼표로 구분하여 저장
+    };
     
     // 세부점검인 경우 추가 필드
     if (inspectionType === '세부점검') {
-        params.append('vibration', document.getElementById('vibration').value || '');
-        params.append('noise', document.getElementById('noise').value || '');
-        params.append('clean_status', document.getElementById('cleanStatus').value);
-        params.append('filter_status', document.getElementById('filterStatus').value);
+        inspectionData.vibration = document.getElementById('vibration').value || '';
+        inspectionData.noise = document.getElementById('noise').value || '';
+        inspectionData.clean_status = document.getElementById('cleanStatus').value;
+        inspectionData.filter_status = document.getElementById('filterStatus').value;
     }
-    
+
+    // iframe을 사용한 제출 (CORS 우회)
     try {
-        // iframe을 사용한 제출 (CORS 우회)
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.name = 'submitFrame';
