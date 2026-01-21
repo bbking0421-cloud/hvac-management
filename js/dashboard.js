@@ -2,11 +2,15 @@
      2	const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
      3	
      4	// 페이지 로드 시 실행
-     5	document.addEventListener('DOMContentLoaded', function() {
-     6	    loadSiteFilter();
-     7	    loadDashboardData();
-     8	});
-     9	
+document.addEventListener('DOMContentLoaded', function() {
+    loadSiteFilter();
+    loadDashboardData();
+    
+    // 필터 변경 이벤트 리스너 등록
+    document.getElementById('periodFilter').addEventListener('change', loadDashboardData);
+    document.getElementById('siteFilterDash').addEventListener('change', loadDashboardData);
+    document.getElementById('statusFilter').addEventListener('change', loadDashboardData);
+});
     10	// 현장 필터 로드
     11	async function loadSiteFilter() {
     12	    try {
