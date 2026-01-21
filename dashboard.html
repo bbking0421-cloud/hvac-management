@@ -22,7 +22,7 @@
         <div class="filter-panel">
             <div class="filter-group">
                 <label><i class="fas fa-calendar"></i> 기간</label>
-                <select id="periodFilter" onchange="loadDashboardData()">
+                <select id="periodFilter">
                     <option value="today">오늘</option>
                     <option value="week" selected>최근 7일</option>
                     <option value="month">최근 30일</option>
@@ -31,13 +31,13 @@
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-building"></i> 현장</label>
-                <select id="siteFilterDash" onchange="loadDashboardData()">
+                <select id="siteFilterDash">
                     <option value="">전체</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-info-circle"></i> 상태</label>
-                <select id="statusFilter" onchange="loadDashboardData()">
+                <select id="statusFilter">
                     <option value="">전체</option>
                     <option value="정상">정상</option>
                     <option value="주의">주의</option>
