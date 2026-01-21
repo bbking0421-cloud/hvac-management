@@ -1,3 +1,6 @@
+// Google Apps Script API URL
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
+
 // 전역 변수
 let allInspections = [];
 let allEquipment = [];
@@ -13,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // 현장 필터 로드
 async function loadSiteFilter() {
     try {
-        const response = await fetch(`${API_BASE}/sites?limit=1000`);
+        const response = await fetch(`${API_BASE}?action=list&table=sites`);
         const data = await response.json();
         allSites = data.data;
         
@@ -31,12 +34,12 @@ async function loadSiteFilter() {
 async function loadDashboardData() {
     try {
         // 점검 데이터 로드
-        const inspResponse = await fetch(`${API_BASE}/inspections?limit=1000`);
+        const inspResponse = await fetch(`${API_BASE}?action=list&table=inspections`);
         const inspData = await inspResponse.json();
         allInspections = inspData.data;
         
         // 장비 데이터 로드
-        const eqResponse = await fetch(`${API_BASE}/equipment?limit=1000`);
+        cconst eqResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
         const eqData = await eqResponse.json();
         allEquipment = eqData.data;
         
