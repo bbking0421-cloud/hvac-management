@@ -258,8 +258,13 @@ async function submitInspection(e) {
         return;
     }
     
-    // 사진 업로드
-    const photoUrls = await uploadPhotos();
+    // 사진 업로드 (임시로 비활성화)
+    // const photoUrls = await uploadPhotos();
+    const photoUrls = []; // 빈 배열로 설정
+    
+    if (selectedPhotos.length > 0) {
+        alert('사진 업로드 기능은 현재 개발 중입니다.\n사진 없이 점검 데이터만 저장됩니다.');
+    }
     
     // 점검 데이터 구성
     const inspectionData = {
@@ -286,6 +291,9 @@ async function submitInspection(e) {
     
     try {
         const params = new URLSearchParams();
+        params.append('action', 'create');
+        params.append('table', 'inspections');
+        
         Object.keys(inspectionData).forEach(key => {
             params.append(key, inspectionData[key]);
         });
@@ -297,7 +305,7 @@ async function submitInspection(e) {
         
         const form = document.createElement('form');
         form.method = 'GET';
-        form.action = `${API_BASE}?action=create&table=inspections&${params.toString()}`;
+        form.action = `${API_BASE}?${params.toString()}`;
         form.target = 'hidden_iframe';
         document.body.appendChild(form);
         form.submit();
@@ -308,6 +316,11 @@ async function submitInspection(e) {
         }, 2000);
         
         alert('점검이 성공적으로 저장되었습니다!');
+        
+        // 사진 초기화
+        selectedPhotos = [];
+        updatePhotoPreview();
+        
         location.href = 'index.html';
         
     } catch (error) {
