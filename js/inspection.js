@@ -254,48 +254,71 @@ async function submitInspection(e) {
         return;
     }
     
-    // 점검 데이터 구성
-    const inspectionData = {
-        equipment_id: selectedEquipment.id,
-        inspection_type: inspectionType,
-        inspector_name: inspectorName,
-        inspection_date: new Date().toISOString(),
-        status: status,
-        temperature: document.getElementById('temperature').value || '',
-        pressure: document.getElementById('pressure').value || '',
-        operation_status: document.getElementById('operationStatus').value,
-        leak_check: document.getElementById('leakCheck').value,
-        notes: document.getElementById('notes').value || ''
-    };
+    // ID 생성
+    const inspectionId = 'INS' + new Date().getTime();
+    
+    // Google Form 방식으로 제출
+    const params = new URLSearchParams();
+    params.append('action', 'create');
+    params.append('table', 'inspections');
+    params.append('id', inspectionId);
+    params.append('equipment_id', selectedEquipment.id);
+    params.append('inspection_type', inspectionType);
+    params.append('inspector_name', inspectorName);
+    params.append('inspection_date', new Date().toISOString());
+    params.append('status', status);
+    params.append('temperature', document.getElementById('temperature').value || '');
+    params.append('pressure', document.getElementById('pressure').value || '');
+    params.append('operation_status', document.getElementById('operationStatus').value);
+    params.append('leak_check', document.getElementById('leakCheck').value);
+    params.append('notes', document.getElementById('notes').value || '');
     
     // 세부점검인 경우 추가 필드
     if (inspectionType === '세부점검') {
-        inspectionData.vibration = document.getElementById('vibration').value || '';
-        inspectionData.noise = document.getElementById('noise').value || '';
-        inspectionData.clean_status = document.getElementById('cleanStatus').value;
-        inspectionData.filter_status = document.getElementById('filterStatus').value;
+        params.append('vibration', document.getElementById('vibration').value || '');
+        params.append('noise', document.getElementById('noise').value || '');
+        params.append('clean_status', document.getElementById('cleanStatus').value);
+        params.append('filter_status', document.getElementById('filterStatus').value);
     }
     
     try {
-        const response = await fetch(`${API_BASE}?action=create&table=inspections`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(inspectionData)
-        });
+        // iframe을 사용한 제출 (CORS 우회)
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.name = 'submitFrame';
+        document.body.appendChild(iframe);
         
-        if (response.ok) {
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = API_BASE;
+        form.target = 'submitFrame';
+        
+        // 파라미터를 hidden input으로 추가
+        for (const [key, value] of params.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            form.appendChild(input);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        // 2초 후 성공 메시지 (Apps Script 처리 시간)
+        setTimeout(() => {
+            document.body.removeChild(form);
+            document.body.removeChild(iframe);
             alert('✅ 점검이 성공적으로 완료되었습니다!');
             location.href = 'index.html';
-        } else {
-            throw new Error('저장 실패');
-        }
+        }, 2000);
+        
     } catch (error) {
         console.error('점검 데이터 저장 오류:', error);
         alert('점검 데이터 저장에 실패했습니다. 다시 시도해주세요.');
     }
 }
+
 
 // 단계 변경
 function changeStep(step) {
