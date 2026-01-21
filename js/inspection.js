@@ -4,13 +4,17 @@ let selectedSite = null;
 let selectedBuilding = null;
 let selectedEquipment = null;
 let allEquipment = [];
+let selectedPhotos = [];
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     loadSites();
     
     // 폼 제출 이벤트
-    document.getElementById('inspectionFormData').addEventListener('submit', submitInspection);
+    const form = document.getElementById('inspectionFormData');
+    if (form) {
+        form.addEventListener('submit', submitInspection);
+    }
     
     // 사진 입력 이벤트
     const photoInput = document.getElementById('photoInput');
@@ -103,7 +107,6 @@ async function selectBuilding(building) {
         
         allEquipment = data.data.filter(e => e.building_id === building.id);
         
-        // 필터 옵션 생성
         const floors = [...new Set(allEquipment.map(e => e.floor))];
         const types = [...new Set(allEquipment.map(e => e.equipment_type))];
         
@@ -119,7 +122,6 @@ async function selectBuilding(building) {
             typeFilter.innerHTML += `<option value="${type}">${type}</option>`;
         });
         
-        // 필터 이벤트
         floorFilter.onchange = filterEquipment;
         typeFilter.onchange = filterEquipment;
         
@@ -131,7 +133,6 @@ async function selectBuilding(building) {
     }
 }
 
-// 장비 필터링
 function filterEquipment() {
     const floorValue = document.getElementById('floorFilter').value;
     const typeValue = document.getElementById('typeFilter').value;
@@ -149,7 +150,6 @@ function filterEquipment() {
     displayEquipment(filtered);
 }
 
-// 장비 목록 표시
 function displayEquipment(equipment) {
     const equipmentList = document.getElementById('equipmentList');
     equipmentList.innerHTML = '';
@@ -181,7 +181,6 @@ function displayEquipment(equipment) {
 function selectEquipment(equipment) {
     selectedEquipment = equipment;
     
-    // 장비 상세 정보 표시
     const detailDiv = document.getElementById('equipmentDetail');
     detailDiv.innerHTML = `
         <div class="detail-grid">
@@ -222,249 +221,4 @@ function selectEquipment(equipment) {
             </div>
             <div class="detail-item">
                 <i class="fas fa-calendar"></i>
-                <div>
-                    <div class="detail-label">설치일</div>
-                    <div class="detail-value">${equipment.install_date}</div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    changeStep(4);
-}
-
-// 점검 유형에 따라 폼 필드 업데이트
-function updateFormFields() {
-    const inspectionType = document.querySelector('input[name="inspectionType"]:checked').value;
-    const detailedFields = document.getElementById('detailedFields');
-    
-    if (inspectionType === '세부점검') {
-        detailedFields.style.display = 'block';
-    } else {
-        detailedFields.style.display = 'none';
-    }
-}
-
-// 점검 데이터 제출
-async function submitInspection(e) {
-    e.preventDefault();
-    
-    const inspectionType = document.querySelector('input[name="inspectionType"]:checked').value;
-    const inspectorName = document.getElementById('inspectorName').value;
-    const status = document.getElementById('status').value;
-    
-    if (!inspectorName || !status) {
-        alert('필수 항목을 모두 입력해주세요.');
-        return;
-    }
-    
-    // 사진 업로드 (임시로 비활성화)
-    // const photoUrls = await uploadPhotos();
-    const photoUrls = []; // 빈 배열로 설정
-    
-    if (selectedPhotos.length > 0) {
-        alert('사진 업로드 기능은 현재 개발 중입니다.\n사진 없이 점검 데이터만 저장됩니다.');
-    }
-    
-    // 점검 데이터 구성
-    const inspectionData = {
-        equipment_id: selectedEquipment.id,
-        inspection_type: inspectionType,
-        inspector_name: inspectorName,
-        inspection_date: new Date().toISOString(),
-        status: status,
-        temperature: document.getElementById('temperature').value || '',
-        pressure: document.getElementById('pressure').value || '',
-        operation_status: document.getElementById('operationStatus').value,
-        leak_check: document.getElementById('leakCheck').value,
-        notes: document.getElementById('notes').value || '',
-        photo_url: photoUrls.join(',')
-    };
-    
-    // 세부점검인 경우 추가 필드
-    if (inspectionType === '세부점검') {
-        inspectionData.vibration = document.getElementById('vibration').value || '';
-        inspectionData.noise = document.getElementById('noise').value || '';
-        inspectionData.clean_status = document.getElementById('cleanStatus').value;
-        inspectionData.filter_status = document.getElementById('filterStatus').value;
-    }
-    
-    try {
-        const params = new URLSearchParams();
-        params.append('action', 'create');
-        params.append('table', 'inspections');
-        
-        Object.keys(inspectionData).forEach(key => {
-            params.append(key, inspectionData[key]);
-        });
-        
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.name = 'hidden_iframe';
-        document.body.appendChild(iframe);
-        
-        const form = document.createElement('form');
-        form.method = 'GET';
-        form.action = `${API_BASE}?${params.toString()}`;
-        form.target = 'hidden_iframe';
-        document.body.appendChild(form);
-        form.submit();
-        
-        setTimeout(() => {
-            document.body.removeChild(form);
-            document.body.removeChild(iframe);
-        }, 2000);
-        
-        alert('점검이 성공적으로 저장되었습니다!');
-        
-        // 사진 초기화
-        selectedPhotos = [];
-        updatePhotoPreview();
-        
-        location.href = 'index.html';
-        
-    } catch (error) {
-        console.error('점검 저장 오류:', error);
-        alert('점검 저장에 실패했습니다.');
-    }
-}
-
-// 단계 변경
-function changeStep(step) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.selection-panel').forEach(p => p.classList.remove('active'));
-    
-    document.getElementById('step' + step).classList.add('active');
-    currentStep = step;
-    
-    switch(step) {
-        case 1:
-            document.getElementById('siteSelection').classList.add('active');
-            break;
-        case 2:
-            document.getElementById('buildingSelection').classList.add('active');
-            break;
-        case 3:
-            document.getElementById('equipmentSelection').classList.add('active');
-            break;
-        case 4:
-            document.getElementById('inspectionForm').classList.add('active');
-            break;
-    }
-    
-    window.scrollTo(0, 0);
-}
-
-// ===== 사진 첨부 기능 =====
-let selectedPhotos = [];
-
-// 사진 선택 처리
-function handlePhotoSelect(event) {
-    const files = Array.from(event.target.files);
-    
-    files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedPhotos.push({
-                    file: file,
-                    dataUrl: e.target.result,
-                    name: file.name
-                });
-                updatePhotoPreview();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    event.target.value = '';
-}
-
-// 사진 미리보기 업데이트
-function updatePhotoPreview() {
-    const preview = document.getElementById('photoPreview');
-    preview.innerHTML = '';
-    
-    selectedPhotos.forEach((photo, index) => {
-        const photoItem = document.createElement('div');
-        photoItem.className = 'photo-item';
-        photoItem.innerHTML = `
-            <img src="${photo.dataUrl}" alt="사진 ${index + 1}">
-            <button class="remove-photo" onclick="removePhoto(${index})">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        preview.appendChild(photoItem);
-    });
-}
-
-// 사진 삭제
-function removePhoto(index) {
-    selectedPhotos.splice(index, 1);
-    updatePhotoPreview();
-}
-
-// 사진 업로드 (Google Drive) - CORS 우회 방식
-async function uploadPhotos() {
-    if (selectedPhotos.length === 0) {
-        return [];
-    }
-    
-    showUploadingOverlay();
-    const uploadedUrls = [];
-    
-    try {
-        for (let i = 0; i < selectedPhotos.length; i++) {
-            const photo = selectedPhotos[i];
-            const timestamp = new Date().getTime();
-            const fileName = `inspection_${timestamp}_${i}.jpg`;
-            
-            // iframe 방식으로 업로드
-            const uploadUrl = await uploadPhotoViaIframe(photo.dataUrl, fileName);
-            
-            if (uploadUrl) {
-                uploadedUrls.push(uploadUrl);
-            }
-        }
-    } catch (error) {
-        console.error('사진 업로드 오류:', error);
-    } finally {
-        hideUploadingOverlay();
-    }
-    
-    return uploadedUrls;
-}
-
-// iframe을 통한 사진 업로드
-function uploadPhotoViaIframe(base64Data, fileName) {
-    return new Promise((resolve) => {
-        // 임시로 썸네일 URL 생성 (실제로는 Google Drive에 업로드해야 함)
-        // 현재는 base64를 그대로 반환
-        setTimeout(() => {
-            resolve(base64Data);
-        }, 500);
-    });
-}
-
-
-// 업로드 중 오버레이 표시
-function showUploadingOverlay() {
-    const overlay = document.createElement('div');
-    overlay.id = 'uploadingOverlay';
-    overlay.className = 'uploading-overlay';
-    overlay.innerHTML = `
-        <div class="uploading-content">
-            <i class="fas fa-spinner"></i>
-            <p>사진 업로드 중...</p>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-}
-
-// 업로드 중 오버레이 숨기기
-function hideUploadingOverlay() {
-    const overlay = document.getElementById('uploadingOverlay');
-    if (overlay) {
-        overlay.remove();
-    }
-}
+                <div><span class="cursor">█</span>
