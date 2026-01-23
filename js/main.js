@@ -1,5 +1,5 @@
 // API 기본 URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHf';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
 
 // 비밀번호 설정
 const PASSWORDS = {
@@ -13,7 +13,7 @@ let currentRole = null;
 // 페이지 로드 시 통계 데이터 가져오기
 document.addEventListener('DOMContentLoaded', async function() {
     await loadStatistics();
-    
+
     // 비밀번호 입력 시 엔터키 처리
     const passwordInput = document.getElementById('passwordInput');
     if (passwordInput) {
@@ -32,7 +32,7 @@ async function loadStatistics() {
     if (!totalSitesElement) {
         return;
     }
-    
+
     try {
         // 현장 수
         const sitesResponse = await fetch(`${API_BASE}?action=list&table=sites`);
@@ -47,16 +47,17 @@ async function loadStatistics() {
         // 금일 점검 수
         const inspectionsResponse = await fetch(`${API_BASE}?action=list&table=inspections`);
         const inspectionsData = await inspectionsResponse.json();
-        
+
         const today = new Date().toISOString().split('T')[0];
         const todayCount = inspectionsData.data.filter(inspection => {
             const inspectionDate = new Date(inspection.inspection_date).toISOString().split('T')[0];
             return inspectionDate === today;
         }).length;
-        
+
         document.getElementById('todayInspections').textContent = todayCount;
     } catch (error) {
         console.error('통계 데이터 로드 오류:', error);
+        // 오류 시 기본값 표시
         totalSitesElement.textContent = '0';
         document.getElementById('totalEquipment').textContent = '0';
         document.getElementById('todayInspections').textContent = '0';
@@ -116,7 +117,7 @@ function checkPassword(role) {
     const description = document.getElementById('modalDescription');
     const passwordInput = document.getElementById('passwordInput');
     const passwordHint = document.getElementById('passwordHint');
-    
+
     // 역할에 따른 텍스트 설정
     if (role === 'inspector') {
         title.textContent = '점검자 인증';
@@ -125,15 +126,15 @@ function checkPassword(role) {
         title.textContent = '관리자 인증';
         description.textContent = '관리 대시보드에 접근하려면 비밀번호를 입력해주세요';
     }
-    
+
     // 입력 필드 초기화
     passwordInput.value = '';
     passwordHint.textContent = '';
     passwordHint.className = 'password-hint';
-    
+
     // 모달 표시
     modal.classList.add('active');
-    
+
     // 포커스
     setTimeout(() => {
         passwordInput.focus();
@@ -152,13 +153,13 @@ function submitPassword() {
     const passwordInput = document.getElementById('passwordInput');
     const passwordHint = document.getElementById('passwordHint');
     const enteredPassword = passwordInput.value.trim();
-    
+
     // 비밀번호 확인
     if (enteredPassword === PASSWORDS[currentRole]) {
         // 성공
         passwordHint.textContent = '✓ 인증 성공!';
         passwordHint.className = 'password-hint success';
-        
+
         // 페이지 이동
         setTimeout(() => {
             if (currentRole === 'inspector') {
@@ -171,13 +172,13 @@ function submitPassword() {
         // 실패
         passwordHint.textContent = '✗ 비밀번호가 올바르지 않습니다';
         passwordHint.className = 'password-hint error';
-        
+
         // 입력 필드 흔들기 효과
         passwordInput.style.animation = 'shake 0.5s';
         setTimeout(() => {
             passwordInput.style.animation = '';
         }, 500);
-        
+
         // 입력 필드 비우기
         passwordInput.value = '';
         passwordInput.focus();
