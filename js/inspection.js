@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Step 1: 현장 목록 로드
 async function loadSites() {
     try {
-        const response = await fetch(`${API_BASE}?action=list&table=sites`)
+        const response = await fetch(`${API_BASE}?action=list&table=sites`);
         const data = await response.json();
         
         const siteList = document.getElementById('siteList');
@@ -47,7 +47,7 @@ async function selectSite(site) {
     document.getElementById('selectedSiteName').textContent = site.site_name;
     
     try {
-        fetch(`${API_BASE}?action=list&table=buildings`)
+        fetch(`${API_BASE}?action=list&table=buildings`);
         const data = await response.json();
         
         // 선택된 현장의 건물만 필터링
@@ -87,7 +87,7 @@ async function selectBuilding(building) {
     document.getElementById('selectedBuildingName').textContent = building.building_name;
     
     try {
-        fetch(`${API_BASE}?action=list&table=equipment`)
+        fetch(`${API_BASE}?action=list&table=equipment`);
         const data = await response.json();
         
         // 선택된 건물의 장비만 필터링
