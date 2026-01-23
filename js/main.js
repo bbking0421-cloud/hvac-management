@@ -1,6 +1,6 @@
 // API 기본 URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHf
-    
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
+
 // 비밀번호 설정
 const PASSWORDS = {
     inspector: '1234',  // 점검자 비밀번호
@@ -16,11 +16,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 비밀번호 입력 시 엔터키 처리
     const passwordInput = document.getElementById('passwordInput');
-    passwordInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            submitPassword();
-        }
-    });
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitPassword();
+            }
+        });
+    }
 });
 
 // 통계 데이터 로드
@@ -49,6 +51,10 @@ async function loadStatistics() {
         document.getElementById('todayInspections').textContent = todayCount;
     } catch (error) {
         console.error('통계 데이터 로드 오류:', error);
+        // 오류 시 기본값 표시
+        document.getElementById('totalSites').textContent = '0';
+        document.getElementById('totalEquipment').textContent = '0';
+        document.getElementById('todayInspections').textContent = '0';
     }
 }
 
