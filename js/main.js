@@ -1,35 +1,43 @@
-// Google Apps Script API URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
+// API 기본 URL
+const API_BASE = 'tables';
+
+// 비밀번호 설정
+const PASSWORDS = {
+    inspector: '1234',  // 점검자 비밀번호
+    manager: 'admin123' // 관리자 비밀번호
+};
+
+// 현재 접근 시도 중인 역할
+let currentRole = null;
 
 // 페이지 로드 시 통계 데이터 가져오기
 document.addEventListener('DOMContentLoaded', async function() {
-    // index.html 페이지인 경우에만 통계 로드
-    if (document.getElementById('totalSites')) {
-        await loadStatistics();
-    }
+    await loadStatistics();
+    
+    // 비밀번호 입력 시 엔터키 처리
+    const passwordInput = document.getElementById('passwordInput');
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            submitPassword();
+        }
+    });
 });
 
 // 통계 데이터 로드
 async function loadStatistics() {
     try {
         // 현장 수
-        const sitesResponse = await fetch(`${API_BASE}?action=list&table=sites`);
+        const sitesResponse = await fetch(`${API_BASE}/sites?limit=1000`);
         const sitesData = await sitesResponse.json();
-        const sitesElement = document.getElementById('totalSites');
-        if (sitesElement) {
-            sitesElement.textContent = sitesData.total || 0;
-        }
+        document.getElementById('totalSites').textContent = sitesData.total || 0;
 
         // 장비 수
-        const equipmentResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
+        const equipmentResponse = await fetch(`${API_BASE}/equipment?limit=1000`);
         const equipmentData = await equipmentResponse.json();
-        const equipmentElement = document.getElementById('totalEquipment');
-        if (equipmentElement) {
-            equipmentElement.textContent = equipmentData.total || 0;
-        }
+        document.getElementById('totalEquipment').textContent = equipmentData.total || 0;
 
         // 금일 점검 수
-        const inspectionsResponse = await fetch(`${API_BASE}?action=list&table=inspections`);
+        const inspectionsResponse = await fetch(`${API_BASE}/inspections?limit=1000`);
         const inspectionsData = await inspectionsResponse.json();
         
         const today = new Date().toISOString().split('T')[0];
@@ -38,10 +46,7 @@ async function loadStatistics() {
             return inspectionDate === today;
         }).length;
         
-        const inspectionsElement = document.getElementById('todayInspections');
-        if (inspectionsElement) {
-            inspectionsElement.textContent = todayCount;
-        }
+        document.getElementById('todayInspections').textContent = todayCount;
     } catch (error) {
         console.error('통계 데이터 로드 오류:', error);
     }
@@ -91,3 +96,90 @@ function getEquipmentIcon(type) {
     };
     return icons[type] || 'fa-cog';
 }
+
+// 비밀번호 확인 팝업 열기
+function checkPassword(role) {
+    currentRole = role;
+    const modal = document.getElementById('passwordModal');
+    const title = document.getElementById('modalTitle');
+    const description = document.getElementById('modalDescription');
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordHint = document.getElementById('passwordHint');
+    
+    // 역할에 따른 텍스트 설정
+    if (role === 'inspector') {
+        title.textContent = '점검자 인증';
+        description.textContent = '장비 점검 페이지에 접근하려면 비밀번호를 입력해주세요';
+    } else if (role === 'manager') {
+        title.textContent = '관리자 인증';
+        description.textContent = '관리 대시보드에 접근하려면 비밀번호를 입력해주세요';
+    }
+    
+    // 입력 필드 초기화
+    passwordInput.value = '';
+    passwordHint.textContent = '';
+    passwordHint.className = 'password-hint';
+    
+    // 모달 표시
+    modal.classList.add('active');
+    
+    // 포커스
+    setTimeout(() => {
+        passwordInput.focus();
+    }, 300);
+}
+
+// 비밀번호 모달 닫기
+function closePasswordModal() {
+    const modal = document.getElementById('passwordModal');
+    modal.classList.remove('active');
+    currentRole = null;
+}
+
+// 비밀번호 확인 및 페이지 이동
+function submitPassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordHint = document.getElementById('passwordHint');
+    const enteredPassword = passwordInput.value.trim();
+    
+    // 비밀번호 확인
+    if (enteredPassword === PASSWORDS[currentRole]) {
+        // 성공
+        passwordHint.textContent = '✓ 인증 성공!';
+        passwordHint.className = 'password-hint success';
+        
+        // 페이지 이동
+        setTimeout(() => {
+            if (currentRole === 'inspector') {
+                location.href = 'inspection.html';
+            } else if (currentRole === 'manager') {
+                location.href = 'dashboard.html';
+            }
+        }, 500);
+    } else {
+        // 실패
+        passwordHint.textContent = '✗ 비밀번호가 올바르지 않습니다';
+        passwordHint.className = 'password-hint error';
+        
+        // 입력 필드 흔들기 효과
+        passwordInput.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+            passwordInput.style.animation = '';
+        }, 500);
+        
+        // 입력 필드 비우기
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+}
+
+// 흔들기 애니메이션 CSS 추가
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+`;
+document.head.appendChild(style);
