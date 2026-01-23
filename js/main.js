@@ -1,5 +1,6 @@
 // API 기본 URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHf
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHf';
+
 // 비밀번호 설정
 const PASSWORDS = {
     inspector: '1234',  // 점검자 비밀번호
@@ -26,11 +27,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // 통계 데이터 로드
 async function loadStatistics() {
+    // 통계 요소가 없는 페이지에서는 실행하지 않음
+    const totalSitesElement = document.getElementById('totalSites');
+    if (!totalSitesElement) {
+        return;
+    }
+    
     try {
         // 현장 수
         const sitesResponse = await fetch(`${API_BASE}?action=list&table=sites`);
         const sitesData = await sitesResponse.json();
-        document.getElementById('totalSites').textContent = sitesData.total || 0;
+        totalSitesElement.textContent = sitesData.total || 0;
 
         // 장비 수
         const equipmentResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
@@ -50,8 +57,7 @@ async function loadStatistics() {
         document.getElementById('todayInspections').textContent = todayCount;
     } catch (error) {
         console.error('통계 데이터 로드 오류:', error);
-        // 오류 시 기본값 표시
-        document.getElementById('totalSites').textContent = '0';
+        totalSitesElement.textContent = '0';
         document.getElementById('totalEquipment').textContent = '0';
         document.getElementById('todayInspections').textContent = '0';
     }
