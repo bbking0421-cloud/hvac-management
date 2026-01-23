@@ -1,4 +1,3 @@
-
 // 전역 변수
 let currentStep = 1;
 let selectedSite = null;
