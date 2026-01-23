@@ -241,19 +241,17 @@
 }
 
 .equipment-card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 15px;
-    padding: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .equipment-card:hover {
     transform: translateY(-5px);
-    border-color: #667eea;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
 }
 
 .equipment-card .eq-header {
@@ -264,40 +262,27 @@
 }
 
 .equipment-card .eq-icon {
-    font-size: 36px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 28px;
 }
 
 .equipment-card .eq-id {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
 }
 
 .equipment-card h3 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #333;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
 .equipment-card .eq-info {
-    font-size: 14px;
-    color: #666;
-    line-height: 1.8;
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.6;
 }
 
-.equipment-card .eq-info i {
-    color: #667eea;
-    margin-right: 8px;
-    width: 16px;
-}
 
 /* ===== 장비 상세 정보 ===== */
 .equipment-detail {
