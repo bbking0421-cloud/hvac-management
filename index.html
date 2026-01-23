@@ -18,7 +18,7 @@
         </div>
 
         <div class="main-menu">
-            <div class="menu-card" onclick="location.href='inspection.html'">
+            <div class="menu-card" onclick="checkPassword('inspector')">
                 <div class="card-icon inspector">
                     <i class="fas fa-clipboard-check"></i>
                 </div>
@@ -27,7 +27,7 @@
                 <div class="card-badge">점검자</div>
             </div>
 
-            <div class="menu-card" onclick="location.href='dashboard.html'">
+            <div class="menu-card" onclick="checkPassword('manager')">
                 <div class="card-icon manager">
                     <i class="fas fa-chart-line"></i>
                 </div>
@@ -75,6 +75,29 @@
 
         <div class="footer">
             <p>© 2026 HVAC Equipment Management System</p>
+        </div>
+    </div>
+
+    <!-- 비밀번호 입력 팝업 -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-lock"></i>
+                <h3 id="modalTitle">비밀번호 입력</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modalDescription">접근하려면 비밀번호를 입력해주세요</p>
+                <input type="password" id="passwordInput" placeholder="비밀번호 입력" maxlength="20">
+                <div class="password-hint" id="passwordHint"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closePasswordModal()" class="btn-cancel">
+                    <i class="fas fa-times"></i> 취소
+                </button>
+                <button onclick="submitPassword()" class="btn-submit">
+                    <i class="fas fa-check"></i> 확인
+                </button>
+            </div>
         </div>
     </div>
 
