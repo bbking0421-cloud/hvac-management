@@ -1,5 +1,3 @@
-// API 기본 URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
 
 // 전역 변수
 let allEquipmentList = [];
