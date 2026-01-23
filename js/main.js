@@ -1,5 +1,5 @@
 // API 기본 URL
-const API_BASE = 'tables';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKnOxwx-AY4fg_bT88wHfR6w3BIbAytWnl8wrQ_MdSRj39LSYRYueDgx8Hl-RC1Jybuw/exec';
 
 // 비밀번호 설정
 const PASSWORDS = {
@@ -27,17 +27,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadStatistics() {
     try {
         // 현장 수
-        const sitesResponse = await fetch(`${API_BASE}/sites?limit=1000`);
+        const sitesResponse = await fetch(`${API_BASE}?action=list&table=sites`);
         const sitesData = await sitesResponse.json();
         document.getElementById('totalSites').textContent = sitesData.total || 0;
 
         // 장비 수
-        const equipmentResponse = await fetch(`${API_BASE}/equipment?limit=1000`);
+        const equipmentResponse = await fetch(`${API_BASE}?action=list&table=equipment`);
         const equipmentData = await equipmentResponse.json();
         document.getElementById('totalEquipment').textContent = equipmentData.total || 0;
 
         // 금일 점검 수
-        const inspectionsResponse = await fetch(`${API_BASE}/inspections?limit=1000`);
+        const inspectionsResponse = await fetch(`${API_BASE}?action=list&table=inspections`);
         const inspectionsData = await inspectionsResponse.json();
         
         const today = new Date().toISOString().split('T')[0];
