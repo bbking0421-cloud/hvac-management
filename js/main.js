@@ -114,73 +114,72 @@ function checkPassword(role) {
     const modal = document.getElementById('passwordModal');
     const title = document.getElementById('modalTitle');
     const description = document.getElementById('modalDescription');
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordHint = document.getElementById('passwordHint');
     
+    // 역할에 따른 텍스트 설정
     if (role === 'inspector') {
         title.textContent = '🔒 점검자 인증';
-        description.textContent = '장비 점검을 위해 비밀번호를 입력하세요';
-    } else {
+        description.textContent = '장비 점검 페이지에 접근하려면 비밀번호를 입력해주세요';
+    } else if (role === 'manager') {
         title.textContent = '🔒 관리자 인증';
-        description.textContent = '관리 대시보드 접근을 위해 비밀번호를 입력하세요';
+        description.textContent = '관리 대시보드에 접근하려면 비밀번호를 입력해주세요';
     }
     
-    modal.style.display = 'flex';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordInput').focus();
-    document.getElementById('passwordError').style.display = 'none';
+    // 입력 필드 초기화
+    passwordInput.value = '';
+    passwordHint.textContent = '';
+    passwordHint.className = 'password-hint';
+    
+    // 모달 표시
+    modal.classList.add('active');
+    
+    // 포커스
+    setTimeout(() => {
+        passwordInput.focus();
+    }, 300);
 }
 
-// 비밀번호 팝업 닫기
+// 비밀번호 모달 닫기
 function closePasswordModal() {
-    document.getElementById('passwordModal').style.display = 'none';
+    const modal = document.getElementById('passwordModal');
+    modal.classList.remove('active');
     currentRole = null;
 }
 
-// 비밀번호 제출
+// 비밀번호 확인 및 페이지 이동
 function submitPassword() {
-    const input = document.getElementById('passwordInput').value;
-    const errorDiv = document.getElementById('passwordError');
-    
-    if (!currentRole) return;
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordHint = document.getElementById('passwordHint');
+    const enteredPassword = passwordInput.value.trim();
     
     // 비밀번호 확인
-    if (input === PASSWORDS[currentRole]) {
-        // 인증 성공
-        closePasswordModal();
+    if (enteredPassword === PASSWORDS[currentRole]) {
+        // 성공
+        passwordHint.textContent = '✓ 인증 성공!';
+        passwordHint.className = 'password-hint success';
         
-        // 해당 페이지로 이동
-        if (currentRole === 'inspector') {
-            location.href = 'inspection.html';
-        } else {
-            location.href = 'dashboard.html';
-        }
-    } else {
-        // 인증 실패
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = '❌ 비밀번호가 올바르지 않습니다';
-        
-        // 입력 필드 흔들기 효과
-        const inputField = document.getElementById('passwordInput');
-        inputField.classList.add('shake');
+        // 페이지 이동
         setTimeout(() => {
-            inputField.classList.remove('shake');
+            if (currentRole === 'inspector') {
+                location.href = 'inspection.html';
+            } else if (currentRole === 'manager') {
+                location.href = 'dashboard.html';
+            }
+        }, 500);
+    } else {
+        // 실패
+        passwordHint.textContent = '✗ 비밀번호가 올바르지 않습니다';
+        passwordHint.className = 'password-hint error';
+        
+        // 입력 필드 흔들기
+        passwordInput.classList.add('shake');
+        setTimeout(() => {
+            passwordInput.classList.remove('shake');
         }, 500);
         
-        // 입력 필드 초기화
-        inputField.value = '';
-        inputField.focus();
+        // 입력 필드 초기화 및 포커스
+        passwordInput.value = '';
+        passwordInput.focus();
     }
 }
-
-// 흔들기 애니메이션 CSS 추가
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
-    .shake {
-        animation: shake 0.5s;
-    }
-`;
-document.head.appendChild(style);
