@@ -10,10 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSites();
     
     // 폼 제출 이벤트
-    const form = document.getElementById('inspectionFormData');
-    if (form) {
-        form.addEventListener('submit', submitInspection);
-    }
+    document.getElementById('inspectionFormData').addEventListener('submit', submitInspection);
 });
 
 // Step 1: 현장 목록 로드
@@ -24,11 +21,6 @@ async function loadSites() {
         
         const siteList = document.getElementById('siteList');
         siteList.innerHTML = '';
-        
-        if (!data.data || data.data.length === 0) {
-            siteList.innerHTML = '<p style="text-align: center; color: #999;">등록된 현장이 없습니다.</p>';
-            return;
-        }
         
         data.data.forEach(site => {
             const card = document.createElement('div');
@@ -58,28 +50,28 @@ async function selectSite(site) {
         const response = await fetch(`${API_BASE}?action=list&table=buildings`);
         const data = await response.json();
         
+        // 선택된 현장의 건물만 필터링
         const buildings = data.data.filter(b => b.site_id === site.id);
         
         const buildingList = document.getElementById('buildingList');
         buildingList.innerHTML = '';
         
         if (buildings.length === 0) {
-            buildingList.innerHTML = '<p style="text-align: center; color: #999;">등록된 건물이 없습니다.</p>';
-            return;
+            buildingList.innerHTML = '<p style="text-align:center; color:#666;">해당 현장에 등록된 건물이 없습니다.</p>';
+        } else {
+            buildings.forEach(building => {
+                const card = document.createElement('div');
+                card.className = 'selection-card';
+                card.onclick = () => selectBuilding(building);
+                card.innerHTML = `
+                    <div class="icon"><i class="fas fa-building"></i></div>
+                    <h3>${building.building_name}</h3>
+                    <p><i class="fas fa-layer-group"></i> ${building.floors}층</p>
+                    <p><i class="fas fa-ruler-combined"></i> ${building.area}m²</p>
+                `;
+                buildingList.appendChild(card);
+            });
         }
-        
-        buildings.forEach(building => {
-            const card = document.createElement('div');
-            card.className = 'selection-card';
-            card.onclick = () => selectBuilding(building);
-            card.innerHTML = `
-                <div class="icon"><i class="fas fa-building"></i></div>
-                <h3>${building.building_name}</h3>
-                <p><i class="fas fa-layer-group"></i> ${building.floors}층</p>
-                <p><i class="fas fa-expand"></i> ${building.area}㎡</p>
-            `;
-            buildingList.appendChild(card);
-        });
         
         changeStep(2);
     } catch (error) {
@@ -91,34 +83,21 @@ async function selectSite(site) {
 // Step 3: 장비 목록 로드
 async function selectBuilding(building) {
     selectedBuilding = building;
-    document.getElementById('selectedSiteName2').textContent = selectedSite.site_name;
     document.getElementById('selectedBuildingName').textContent = building.building_name;
     
     try {
         const response = await fetch(`${API_BASE}?action=list&table=equipment`);
         const data = await response.json();
         
+        // 선택된 건물의 장비만 필터링
         allEquipment = data.data.filter(e => e.building_id === building.id);
         
-        const floors = [...new Set(allEquipment.map(e => e.floor))];
-        const types = [...new Set(allEquipment.map(e => e.equipment_type))];
+        // 필터 옵션 생성
+        populateFilters();
         
-        const floorFilter = document.getElementById('floorFilter');
-        floorFilter.innerHTML = '<option value="">전체</option>';
-        floors.forEach(floor => {
-            floorFilter.innerHTML += `<option value="${floor}">${floor}</option>`;
-        });
-        
-        const typeFilter = document.getElementById('typeFilter');
-        typeFilter.innerHTML = '<option value="">전체</option>';
-        types.forEach(type => {
-            typeFilter.innerHTML += `<option value="${type}">${type}</option>`;
-        });
-        
-        floorFilter.onchange = filterEquipment;
-        typeFilter.onchange = filterEquipment;
-        
+        // 장비 목록 표시
         displayEquipment(allEquipment);
+        
         changeStep(3);
     } catch (error) {
         console.error('장비 목록 로드 오류:', error);
@@ -126,53 +105,79 @@ async function selectBuilding(building) {
     }
 }
 
+// 필터 옵션 채우기
+function populateFilters() {
+    // 층 필터
+    const floors = [...new Set(allEquipment.map(e => e.floor))].sort();
+    const floorFilter = document.getElementById('floorFilter');
+    floorFilter.innerHTML = '<option value="">전체</option>';
+    floors.forEach(floor => {
+        floorFilter.innerHTML += `<option value="${floor}">${floor}</option>`;
+    });
+    
+    // 장비 종류 필터
+    const types = [...new Set(allEquipment.map(e => e.equipment_type))].sort();
+    const typeFilter = document.getElementById('typeFilter');
+    typeFilter.innerHTML = '<option value="">전체</option>';
+    types.forEach(type => {
+        typeFilter.innerHTML += `<option value="${type}">${type}</option>`;
+    });
+}
+
+// 장비 필터링
 function filterEquipment() {
-    const floorValue = document.getElementById('floorFilter').value;
-    const typeValue = document.getElementById('typeFilter').value;
+    const floorFilter = document.getElementById('floorFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
     
     let filtered = allEquipment;
     
-    if (floorValue) {
-        filtered = filtered.filter(e => e.floor === floorValue);
+    if (floorFilter) {
+        filtered = filtered.filter(e => e.floor === floorFilter);
     }
     
-    if (typeValue) {
-        filtered = filtered.filter(e => e.equipment_type === typeValue);
+    if (typeFilter) {
+        filtered = filtered.filter(e => e.equipment_type === typeFilter);
     }
     
     displayEquipment(filtered);
 }
 
+// 장비 목록 표시
 function displayEquipment(equipment) {
     const equipmentList = document.getElementById('equipmentList');
     equipmentList.innerHTML = '';
     
     if (equipment.length === 0) {
-        equipmentList.innerHTML = '<p style="text-align: center; color: #999;">조건에 맞는 장비가 없습니다.</p>';
-        return;
+        equipmentList.innerHTML = '<p style="text-align:center; color:#666; grid-column: 1/-1;">조건에 맞는 장비가 없습니다.</p>';
+    } else {
+        equipment.forEach(eq => {
+            const card = document.createElement('div');
+            card.className = 'equipment-card';
+            card.onclick = () => selectEquipment(eq);
+            card.innerHTML = `
+                <div class="eq-header">
+                    <div class="eq-icon"><i class="fas ${getEquipmentIcon(eq.equipment_type)}"></i></div>
+                    <div class="eq-id">${eq.equipment_id || eq.id}</div>
+                </div>
+                <h3>${eq.equipment_name || eq.equipment_type}</h3>
+                <div class="eq-info">
+                    <div><i class="fas fa-layer-group"></i> ${eq.floor}층 - ${eq.location}</div>
+                    <div><i class="fas fa-box"></i> ${eq.model || '정보 없음'}</div>
+                    <div><i class="fas fa-tachometer-alt"></i> ${eq.capacity || '정보 없음'}</div>
+                </div>
+            `;
+            equipmentList.appendChild(card);
+        });
     }
-    
-    equipment.forEach(eq => {
-        const card = document.createElement('div');
-        card.className = 'equipment-card';
-        card.onclick = () => selectEquipment(eq);
-        card.innerHTML = `
-            <div class="equipment-icon"><i class="fas ${getEquipmentIcon(eq.equipment_type)}"></i></div>
-            <div class="equipment-type">${eq.equipment_type}</div>
-            <div class="equipment-info">
-                <div><i class="fas fa-tag"></i> ${eq.id}</div>
-                <div><i class="fas fa-layer-group"></i> ${eq.floor}</div>
-                <div><i class="fas fa-map-marker-alt"></i> ${eq.location}</div>
-                <div><i class="fas fa-box"></i> ${eq.model}</div>
-            </div>
-        `;
-        equipmentList.appendChild(card);
-    });
 }
 
+// Step 4: 장비 선택 및 점검 폼 표시
 function selectEquipment(equipment) {
     selectedEquipment = equipment;
+    document.getElementById('selectedEquipmentName').textContent = 
+        `${equipment.equipment_type} (${equipment.id})`;
     
+    // 장비 상세 정보 표시
     const detailDiv = document.getElementById('equipmentDetail');
     detailDiv.innerHTML = `
         <div class="detail-grid">
@@ -224,6 +229,7 @@ function selectEquipment(equipment) {
     changeStep(4);
 }
 
+// 점검 유형에 따라 폼 필드 업데이트
 function updateFormFields() {
     const inspectionType = document.querySelector('input[name="inspectionType"]:checked').value;
     const detailedFields = document.getElementById('detailedFields');
@@ -235,6 +241,7 @@ function updateFormFields() {
     }
 }
 
+// 점검 데이터 제출
 async function submitInspection(e) {
     e.preventDefault();
     
@@ -247,6 +254,10 @@ async function submitInspection(e) {
         return;
     }
     
+    // 사진 업로드 (개발 중이므로 빈 배열)
+    const photoUrls = [];
+    
+    // 점검 데이터 구성
     const inspectionData = {
         equipment_id: selectedEquipment.id,
         inspection_type: inspectionType,
@@ -258,9 +269,10 @@ async function submitInspection(e) {
         operation_status: document.getElementById('operationStatus').value,
         leak_check: document.getElementById('leakCheck').value,
         notes: document.getElementById('notes').value || '',
-        photo_url: ''
+        photo_url: photoUrls.join(',')
     };
     
+    // 세부점검인 경우 추가 필드
     if (inspectionType === '세부점검') {
         inspectionData.vibration = document.getElementById('vibration').value || '';
         inspectionData.noise = document.getElementById('noise').value || '';
@@ -269,42 +281,37 @@ async function submitInspection(e) {
     }
     
     try {
-        const params = new URLSearchParams();
-        params.append('action', 'create');
-        params.append('table', 'inspections');
+        // GET 방식으로 데이터 전송 (Google Apps Script 호환)
+        const queryString = Object.keys(inspectionData)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(inspectionData[key])}`)
+            .join('&');
         
-        Object.keys(inspectionData).forEach(key => {
-            params.append(key, inspectionData[key]);
-        });
+        const response = await fetch(`${API_BASE}?action=create&table=inspections&${queryString}`);
+        const result = await response.json();
         
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.name = 'hidden_iframe';
-        document.body.appendChild(iframe);
-        
-        iframe.onload = function() {
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-                alert('점검이 성공적으로 저장되었습니다!');
-                location.href = 'index.html';
-            }, 1000);
-        };
-        
-        iframe.src = `${API_BASE}?${params.toString()}`;
-        
+        if (result.success) {
+            alert('✅ 점검이 성공적으로 완료되었습니다!');
+            location.href = 'index.html';
+        } else {
+            throw new Error(result.error || '저장 실패');
+        }
     } catch (error) {
-        console.error('점검 저장 오류:', error);
-        alert('점검 저장에 실패했습니다.');
+        console.error('점검 데이터 저장 오류:', error);
+        alert('점검 데이터 저장에 실패했습니다. 다시 시도해주세요.');
     }
 }
 
+// 단계 변경
 function changeStep(step) {
+    // 이전 단계 비활성화
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.selection-panel').forEach(p => p.classList.remove('active'));
     
+    // 새 단계 활성화
     document.getElementById('step' + step).classList.add('active');
     currentStep = step;
     
+    // 패널 표시
     switch(step) {
         case 1:
             document.getElementById('siteSelection').classList.add('active');
@@ -320,5 +327,6 @@ function changeStep(step) {
             break;
     }
     
+    // 스크롤 최상단으로
     window.scrollTo(0, 0);
 }
