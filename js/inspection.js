@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSites();
     
     // 폼 제출 이벤트
-    document.getElementById('inspectionFormData').addEventListener('submit', submitInspection);
+    const form = document.getElementById('inspectionFormData');
+    if (form) {
+        form.addEventListener('submit', submitInspection);
+    }
 });
 
 // Step 1: 현장 목록 로드
@@ -22,19 +25,23 @@ async function loadSites() {
         const siteList = document.getElementById('siteList');
         siteList.innerHTML = '';
         
-        data.data.forEach(site => {
-            const card = document.createElement('div');
-            card.className = 'selection-card';
-            card.onclick = () => selectSite(site);
-            card.innerHTML = `
-                <div class="icon"><i class="fas fa-building"></i></div>
-                <h3>${site.site_name}</h3>
-                <p><i class="fas fa-map-marker-alt"></i> ${site.address}</p>
-                <p><i class="fas fa-user"></i> ${site.manager}</p>
-                <p><i class="fas fa-phone"></i> ${site.phone}</p>
-            `;
-            siteList.appendChild(card);
-        });
+        if (data.data && data.data.length > 0) {
+            data.data.forEach(site => {
+                const card = document.createElement('div');
+                card.className = 'selection-card';
+                card.onclick = () => selectSite(site);
+                card.innerHTML = `
+                    <div class="icon"><i class="fas fa-building"></i></div>
+                    <h3>${site.site_name}</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> ${site.address}</p>
+                    <p><i class="fas fa-user"></i> ${site.manager}</p>
+                    <p><i class="fas fa-phone"></i> ${site.phone}</p>
+                `;
+                siteList.appendChild(card);
+            });
+        } else {
+            siteList.innerHTML = '<p style="text-align:center; color:#666;">등록된 현장이 없습니다.</p>';
+        }
     } catch (error) {
         console.error('현장 목록 로드 오류:', error);
         alert('현장 목록을 불러오는데 실패했습니다.');
@@ -175,7 +182,7 @@ function displayEquipment(equipment) {
 function selectEquipment(equipment) {
     selectedEquipment = equipment;
     document.getElementById('selectedEquipmentName').textContent = 
-        `${equipment.equipment_type} (${equipment.id})`;
+        `${equipment.equipment_name || equipment.equipment_type} (${equipment.equipment_id || equipment.id})`;
     
     // 장비 상세 정보 표시
     const detailDiv = document.getElementById('equipmentDetail');
@@ -192,35 +199,35 @@ function selectEquipment(equipment) {
                 <i class="fas fa-tag"></i>
                 <div>
                     <div class="detail-label">장비 ID</div>
-                    <div class="detail-value">${equipment.id}</div>
+                    <div class="detail-value">${equipment.equipment_id || equipment.id}</div>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-layer-group"></i>
                 <div>
                     <div class="detail-label">위치</div>
-                    <div class="detail-value">${equipment.floor} - ${equipment.location}</div>
+                    <div class="detail-value">${equipment.floor}층 - ${equipment.location}</div>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-box"></i>
                 <div>
                     <div class="detail-label">모델</div>
-                    <div class="detail-value">${equipment.model}</div>
+                    <div class="detail-value">${equipment.model || '정보 없음'}</div>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-tachometer-alt"></i>
                 <div>
                     <div class="detail-label">용량</div>
-                    <div class="detail-value">${equipment.capacity}</div>
+                    <div class="detail-value">${equipment.capacity || '정보 없음'}</div>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-calendar"></i>
                 <div>
                     <div class="detail-label">설치일</div>
-                    <div class="detail-value">${equipment.install_date}</div>
+                    <div class="detail-value">${equipment.install_date || '정보 없음'}</div>
                 </div>
             </div>
         </div>
@@ -254,12 +261,9 @@ async function submitInspection(e) {
         return;
     }
     
-    // 사진 업로드 (개발 중이므로 빈 배열)
-    const photoUrls = [];
-    
     // 점검 데이터 구성
     const inspectionData = {
-        equipment_id: selectedEquipment.id,
+        equipment_id: selectedEquipment.equipment_id || selectedEquipment.id,
         inspection_type: inspectionType,
         inspector_name: inspectorName,
         inspection_date: new Date().toISOString(),
@@ -269,7 +273,7 @@ async function submitInspection(e) {
         operation_status: document.getElementById('operationStatus').value,
         leak_check: document.getElementById('leakCheck').value,
         notes: document.getElementById('notes').value || '',
-        photo_url: photoUrls.join(',')
+        photo_url: ''
     };
     
     // 세부점검인 경우 추가 필드
