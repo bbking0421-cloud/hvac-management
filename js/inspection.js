@@ -87,7 +87,7 @@ async function selectBuilding(building) {
     document.getElementById('selectedBuildingName').textContent = building.building_name;
     
     try {
-        fetch(`${API_BASE}?action=list&table=equipment`);
+        const response = await fetch(`${API_BASE}?action=list&table=equipment`);
         const data = await response.json();
         
         // 선택된 건물의 장비만 필터링
