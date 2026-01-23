@@ -47,7 +47,7 @@ async function selectSite(site) {
     document.getElementById('selectedSiteName').textContent = site.site_name;
     
     try {
-        fetch(`${API_BASE}?action=list&table=buildings`);
+        const response = await fetch(`${API_BASE}?action=list&table=buildings`);
         const data = await response.json();
         
         // 선택된 현장의 건물만 필터링
