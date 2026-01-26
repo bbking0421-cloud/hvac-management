@@ -282,19 +282,21 @@ async function submitInspection(e) {
     }
     
     try {
-        const response = await fetch(`${API_BASE}/inspections`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(inspectionData)
+        // URL 쿼리 파라미터로 변환
+        const params = new URLSearchParams({
+            action: 'create',
+            table: 'inspections',
+            ...inspectionData
         });
         
-        if (response.ok) {
+        const response = await fetch(`${API_BASE}?${params.toString()}`);
+        const result = await response.json();
+        
+        if (result.success || response.ok) {
             alert('✅ 점검이 성공적으로 완료되었습니다!');
             location.href = 'index.html';
         } else {
-            throw new Error('저장 실패');
+            throw new Error(result.error || '저장 실패');
         }
     } catch (error) {
         console.error('점검 데이터 저장 오류:', error);
