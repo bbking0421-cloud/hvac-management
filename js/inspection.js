@@ -16,19 +16,29 @@ document.addEventListener('DOMContentLoaded', function() {
 // 점검자 목록 로드
 async function loadInspectors() {
     try {
+        console.log('점검자 목록 로딩 시작...');
         const response = await fetch(`${API_BASE}?action=list&table=inspectors`);
+        console.log('API 응답:', response);
+        
         const data = await response.json();
+        console.log('받은 데이터:', data);
         
         const inspectorSelect = document.getElementById('inspectorName');
         
-        data.data.forEach(inspector => {
-            const option = document.createElement('option');
-            option.value = inspector.inspector_name;
-            option.textContent = inspector.inspector_name;
-            inspectorSelect.appendChild(option);
-        });
+        if (data.success && data.data && data.data.length > 0) {
+            console.log(`${data.data.length}명의 점검자 로드 성공`);
+            data.data.forEach(inspector => {
+                const option = document.createElement('option');
+                option.value = inspector.inspector_name;
+                option.textContent = inspector.inspector_name;
+                inspectorSelect.appendChild(option);
+            });
+        } else {
+            console.warn('점검자 데이터가 없습니다:', data);
+        }
     } catch (error) {
         console.error('점검자 목록 로드 오류:', error);
+        console.log('수동 입력 모드로 전환합니다.');
         // 오류 시 수동 입력으로 폴백
         const inspectorSelect = document.getElementById('inspectorName');
         const input = document.createElement('input');
