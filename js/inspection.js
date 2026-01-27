@@ -13,6 +13,33 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('inspectionFormData').addEventListener('submit', submitInspection);
 });
 
+// 점검자 목록 로드
+async function loadInspectors() {
+    try {
+        const response = await fetch(`${API_BASE}?action=list&table=inspectors`);
+        const data = await response.json();
+        
+        const inspectorSelect = document.getElementById('inspectorName');
+        
+        data.data.forEach(inspector => {
+            const option = document.createElement('option');
+            option.value = inspector.inspector_name;
+            option.textContent = `${inspector.inspector_name} (${inspector.department})`;
+            inspectorSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('점검자 목록 로드 오류:', error);
+        // 오류 시 수동 입력으로 폴백
+        const inspectorSelect = document.getElementById('inspectorName');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'inspectorName';
+        input.required = true;
+        input.placeholder = '이름을 입력하세요';
+        inspectorSelect.parentNode.replaceChild(input, inspectorSelect);
+    }
+}
+
 // Step 1: 현장 목록 로드
 async function loadSites() {
     try {
