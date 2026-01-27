@@ -8,6 +8,7 @@ let allEquipment = [];
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     loadSites();
+    loadInspectors(); // 점검자 목록 로드
     
     // 폼 제출 이벤트
     document.getElementById('inspectionFormData').addEventListener('submit', submitInspection);
