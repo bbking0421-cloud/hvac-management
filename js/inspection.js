@@ -24,7 +24,7 @@ async function loadInspectors() {
         data.data.forEach(inspector => {
             const option = document.createElement('option');
             option.value = inspector.inspector_name;
-            option.textContent = `${inspector.inspector_name} (${inspector.department})`;
+            option.textContent = inspector.inspector_name;
             inspectorSelect.appendChild(option);
         });
     } catch (error) {
