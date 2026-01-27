@@ -114,8 +114,11 @@
             <!-- 점검 폼 -->
             <form id="inspectionFormData" class="inspection-form">
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> 점검자명 *</label>
-                    <input type="text" id="inspectorName" required placeholder="이름을 입력하세요">
+                     <label><i class="fas fa-user"></i> 점검자명 *</label>
+                     <select id="inspectorName" required>
+                     <option value="">선택하세요</option>
+            <!-- 동적으로 채워짐 -->
+                     </select>
                 </div>
 
                 <div class="form-group">
